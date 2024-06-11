@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+    <title>account</title>
+    <style>
+        .product-item {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+        }
+        .product-name {
+            font-size: 20px;
+            font-weight: bold;
+            display: inline; /* 确保块级元素 */
+        }
+        .product-description {
+            margin-top: 10px;
+            display: inline; /* 确保块级元素 */
+        }
+        .product-price {
+            margin-top: 10px;
+            color: red;
+        }
+        header {
+            background-color: #bec92b;
+            color: #fff;
+            padding: 20px;
+            text-align: left;
+        }
+        .flex-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .flex-container ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        .flex-container li {
+            position: relative;
+            margin-top: -70px; /* 调整上边距 */
+        }
+        .flex-container li + li::before {
+            content: '|';
+            margin: 0 10px;
+            color: #000;
+        }
+        .flex-container a {
+            text-decoration: none;
+            color: #000;
+        }
+        .flex-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="flex-container">
+            <h1>MYshop</h1>
+            <ul>
+                <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
+                <li><a href="{{ url_for('cart') }}">購物車</a></li>
+                <li><a href="{{ url_for('orderHistory') }}">訂單紀錄</a></li>
+                <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
+                <li><a href="{{ url_for('logout') }}">登出</a></li>
+            </ul>
+        </div>
+    </header>
+    <h1>會員資料檢視</h1>
+    <table border="1">
+        <tr><th>帳號</th><td>{{ rec['account'] }}</td></tr>
+        <tr><th>密碼</th><td>{{ rec['password'] }}</td></tr>
+        <tr><th>姓名</th><td>{{ rec['member_name'] }}</td></tr>
+        <tr><th>地址</th><td>{{ rec['member_address'] }}</td></tr>
+        <tr><th>email</th><td>{{ rec['member_email'] }}</td></tr>
+        <tr><th>手機</th><td>{{ rec['member_phone'] }}</td></tr>
+    </table>
+    <a href="{{ url_for('editProfile') }}">修改個人資訊</a>
+    <a href="{{ url_for('logout') }}">登出</a>
+</body>
+
+</html>

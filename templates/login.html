@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>登入頁</title>
+</head>
+
+<body>
+    <h1>登入頁</h1>
+    <form method="POST">
+        <p>帳號: <input type="text" name="account" value="admin"></p>
+        <p>密碼: <input type="password" name="password" value="123"></p>
+        <p><input type="submit" value="登入"></p>
+        <a>還沒有註冊?</a>
+        <a href="{{ url_for('register') }}">免費註冊</a>
+        
+    </form>
+    {% if error %}
+    <p style="color:red">{{ error }}</p>
+    {% endif %}
+</body>
+
+</html>

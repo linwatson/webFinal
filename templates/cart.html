@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tw">
+<head>
+    <meta charset="UTF-8">
+    <title>購物車</title>
+    <style>
+        .product-item {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .product-name {
+            font-size: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .product-description {
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .product-price {
+            margin-top: 10px;
+            color: red;
+        }
+        .product-info {
+            flex-grow: 1;
+        }
+        .product-info a {
+            text-decoration: none;
+            color: #000;
+        }
+        .product-info a:hover {
+            text-decoration: underline;
+        }
+        header {
+            background-color: #bec92b;
+            color: #fff;
+            padding: 20px;
+            text-align: left;
+        }
+        .flex-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .flex-container ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        .flex-container li {
+            position: relative;
+            margin-top: -70px;
+        }
+        .flex-container li + li::before {
+            content: '|';
+            margin: 0 10px;
+            color: #000;
+        }
+        a {
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .purchase {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .purchase:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="flex-container">
+            <h1>MYshop</h1>
+            <ul>
+                <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
+                <li><a href="{{ url_for('cart') }}">購物車</a></li>
+                <li><a href="{{ url_for('orderHistory') }}">訂單紀錄</a></li>
+                <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
+                <li><a href="{{ url_for('logout') }}">登出</a></li>
+            </ul>
+        </div>
+    </header>
+    <h1>購物車</h1>
+    <form id="cart-form" method="POST" action="{{ url_for('purchaseComplete') }}">
+        <div class="product-list">
+            {% for product in products %}
+            <div class="product-item" id="product-{{ product.id }}">
+                <div class="product-info">
+                    <a>
+                        <span class="product-name">{{ product.name }}</span>
+                        <span class="product-description">{{ product.description }}</span>
+                        <span class="product-seller">賣家: {{ product.seller }}</span>
+                    </a>
+                    <div class="product-price">${{ product.price }}</div>
+                    <label>
+                        選擇數量：
+                        <select name="quantity_{{ product.id }}" class="product-quantity">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </label>
+                </div>
+                <label>
+                    <input type="checkbox" name="selected_products" class="product-checkbox" value="{{ product.id }}" data-price="{{ product.price }}" data-seller="{{ product.seller }}">
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="total-price">總價：$<span id="total-price">{{ total_price }}</span></div>
+        <button type="submit" class="purchase">立即購買</button>
+    </form>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('cart-form');
+            const purchaseButton = form.querySelector('.purchase');
+            const productCheckboxes = form.querySelectorAll('.product-checkbox');
+            const totalPriceDisplay = document.getElementById('total-price');
+
+            function calculateTotalPrice() {
+                let totalPrice = 0;
+                productCheckboxes.forEach(function(checkbox) {
+                    if (checkbox.checked) {
+                        const price = parseFloat(checkbox.dataset.price);
+                        const quantity = parseInt(document.querySelector(`select[name="quantity_${checkbox.value}"]`).value);
+                        totalPrice += price * quantity;
+                    }
+                });
+                totalPriceDisplay.textContent = totalPrice.toFixed(2);
+            }
+
+            function handleCheckboxChange() {
+                calculateTotalPrice();
+            }
+
+            function handleQuantityChange() {
+                calculateTotalPrice();
+            }
+
+            productCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', handleCheckboxChange);
+            });
+
+            const productQuantities = document.querySelectorAll('.product-quantity');
+            productQuantities.forEach(function(quantity) {
+                quantity.addEventListener('change', handleQuantityChange);
+            });
+
+            purchaseButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                handlePurchase();
+            });
+
+            function handlePurchase() {
+                // 清除之前的隱藏輸入框
+                document.querySelectorAll('input[name="selected_sellers"]').forEach(function(input) {
+                    input.remove();
+                });
+
+                // 為每個選中的產品添加隱藏的輸入框來傳遞 seller 資訊
+                productCheckboxes.forEach(function(checkbox) {
+                    if (checkbox.checked) {
+                        const seller = checkbox.dataset.seller;
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'selected_sellers';
+                        input.value = seller;
+                        form.appendChild(input);
+                    }
+                });
+
+                form.submit();
+            }
+        });
+    </script>
+    
+</body>
+</html>

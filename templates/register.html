@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+    <title>register</title>
+    <style>
+        header {
+            background-color: #bec92b;
+            color: #fff;
+            padding: 20px;
+            text-align: left;
+        }
+        .flex-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .flex-container ul {
+            list-style-type: none; 
+            padding: 0;
+            margin: 0;
+            display: flex; 
+            align-items: center;
+        }
+        .flex-container li {
+            position: relative;
+            margin-top: -70px; /* 调整上边距 */
+        }
+        .flex-container li + li::before {
+            content: '|';
+            margin: 0 10px; 
+            color: #000; 
+        }
+        .flex-container a {
+            text-decoration: none; 
+            color: #000; 
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="flex-container">
+            <h1>註冊頁</h1>
+            <ul>
+                <li><a href="{{ url_for('login') }}">返回登入頁面</a></li>
+            </ul>
+        </div>
+    </header>
+    
+    <form method="post">
+        帳號: <input type="text" name="account" required placeholder="請輸入帳號"><br>
+        密碼: <input type="password" name="password" required placeholder="請輸入密碼"><br>
+        再次輸入密碼: <input type="password" name="AGpassword" required placeholder="請確認密碼"><br>
+        姓名: <input type="text" name="member_name" required placeholder="請輸入姓名"><br>
+        地址: <input type="text" name="member_address" required placeholder="請輸入地址"><br>
+        Email: <input type="text" name="member_email" required placeholder="請輸入Email"><br>
+        手機: <input type="text" name="member_phone" required placeholder="請輸入手機號碼"><br>
+        <p><input type="submit" value="註冊"></p>
+    </form>
+    
+    {% if error %}
+    <p style="color:red">{{ error }}</p>
+    {% endif %}
+</body>
+
+</html>

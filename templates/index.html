@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tw">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+    <style>
+        .product-item {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+        }
+        .product-name {
+            font-size: 20px;
+            font-weight: bold;
+            display: inline; /* 确保块级元素 */
+        }
+        .product-description {
+            margin-top: 10px;
+            display: inline; /* 确保块级元素 */
+        }
+        .product-price {
+            margin-top: 10px;
+            color: red;
+        }
+        header {
+            background-color: #bec92b;
+            color: #fff;
+            padding: 20px;
+            text-align: left;
+        }
+        .flex-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .flex-container ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        .flex-container li {
+            position: relative;
+            margin-top: -70px; /* 调整上边距 */
+        }
+        .flex-container li + li::before {
+            content: '|';
+            margin: 0 10px;
+            color: #000;
+        }
+        .flex-container a {
+            text-decoration: none;
+            color: #000;
+        }
+        .flex-container a:hover {
+            text-decoration: underline;
+        }
+        a {
+            text-decoration: none; /* 移除默认下划线 */
+        }
+        a:hover {
+            text-decoration: underline; /* 悬停时显示下划线 */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="flex-container">
+            <h1>MYshop</h1>
+            <ul>
+                <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
+                <li><a href="{{ url_for('cart') }}">購物車</a></li>
+                <li><a href="{{ url_for('orderHistory') }}">訂單紀錄</a></li>
+                <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
+                <li><a href="{{ url_for('logout') }}">登出</a></li>
+            </ul>
+        </div>
+    </header>
+    <h1>首頁</h1>
+    <div class="product-list">
+        {% for product in products %}
+        <div class="product-item" id="product-{{ product.id }}">
+            <a href="{{ url_for('product', product_code=product.id) }}">
+                <span class="product-name">{{ product.name }}</span>
+                <span class="product-description">{{ product.description }}</span>
+            </a>
+            <div class="product-price">${{ product.price }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+
