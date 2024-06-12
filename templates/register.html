@@ -4,37 +4,105 @@
 <head>
     <title>register</title>
     <style>
+        /* Reset some default browser styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header styles */
         header {
             background-color: #bec92b;
             color: #fff;
             padding: 20px;
             text-align: left;
         }
+
         .flex-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
+
         .flex-container ul {
-            list-style-type: none; 
+            list-style-type: none;
+            display: flex;
             padding: 0;
             margin: 0;
-            display: flex; 
-            align-items: center;
         }
+
         .flex-container li {
-            position: relative;
-            margin-top: -70px; /* 调整上边距 */
+            margin: 0 10px;
         }
-        .flex-container li + li::before {
-            content: '|';
-            margin: 0 10px; 
-            color: #000; 
-        }
+
+
         .flex-container a {
-            text-decoration: none; 
-            color: #000; 
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+            transition: color 0.3s;
         }
+        .flex-container a:hover {
+            color: #333;
+        }
+
+        /* Register page title */
+        h1, h2{
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        /* Register form styles */
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 15px;
+        }
+
     </style>
 </head>
 
@@ -47,7 +115,7 @@
             </ul>
         </div>
     </header>
-    <h1>註冊頁</h1>
+    <h2>註冊頁</h2>
     <form method="post">
         帳號: <input type="text" name="account" required placeholder="請輸入帳號"><br>
         密碼: <input type="password" name="password" required placeholder="請輸入密碼"><br>

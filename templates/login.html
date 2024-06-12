@@ -5,28 +5,101 @@
     <meta charset="UTF-8">
     <title>登入頁</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
         header {
             background-color: #bec92b;
             color: #fff;
             padding: 20px;
             text-align: left;
         }
+
+        h1 {
+            color: #333;
+            text-align: left;
+            margin-top: 20px;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        form {
+            max-width: 300px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            width: calc(100% - 20px); /* 将按钮的宽度减小 20px */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 20px; /* 向右移动按钮 */
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            text-decoration: none;
+            color: #4CAF50;
+            display: inline-block; /* 改为 inline-block */
+            text-align: center;
+            margin-right: 20px; /* 向右移动按钮 */
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 15px;
+        }
     </style>
 </head>
 
 <body>
-    <header><h1>MYshop</h1></header>
-    <h1>登入頁</h1>
+    <header>
+        <h1>MYshop</h1>
+    </header>
+    <h2>登入頁</h2>
     <form method="POST">
-        <p>帳號: <input type="text" name="account" value="admin"></p>
-        <p>密碼: <input type="password" name="password" value="123"></p>
+        <p>帳號: <input type="text" name="account" value="33"></p>
+        <p>密碼: <input type="password" name="password" value="33"></p>
         <p><input type="submit" value="登入"></p>
-        <a>還沒有註冊?</a>
-        <a href="{{ url_for('register') }}">免費註冊</a>
-        
+        <a href="{{ url_for('register') }}">還沒有註冊? 免費註冊</a>
     </form>
     {% if error %}
-    <p style="color:red">{{ error }}</p>
+    <p class="error-message">{{ error }}</p>
     {% endif %}
 </body>
 

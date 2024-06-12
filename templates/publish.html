@@ -4,46 +4,126 @@
     <meta charset="UTF-8">
     <title>免費刊登出售</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header styles */
         header {
             background-color: #bec92b;
             color: #fff;
             padding: 20px;
-            text-align: left;
         }
+
         .flex-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
+
         .flex-container ul {
             list-style-type: none;
+            display: flex;
             padding: 0;
             margin: 0;
-            display: flex;
-            align-items: center;
         }
+
         .flex-container li {
-            position: relative;
-            margin-top: -70px; /* 调整上边距 */
-        }
-        .flex-container li + li::before {
-            content: '|';
             margin: 0 10px;
-            color: #000;
         }
+
         .flex-container a {
             text-decoration: none;
-            color: #000;
+            color: #fff;
+            font-size: 16px;
+            transition: color 0.3s;
         }
+
         .flex-container a:hover {
+            color: #333;
+        }
+
+        /* Page title */
+        h1, h2{
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
             text-decoration: underline;
         }
-        a {
-            text-decoration: none; /* 移除默认下划线 */
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        a:hover {
-            text-decoration: underline; /* 悬停时显示下划线 */
+
+        form {
+            display: flex;
+            flex-direction: column;
         }
+
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        textarea#description {
+            width: 100%;
+            height: 100px; /* Adjust the height as needed */
+            resize: none; /* Prevent resizing */
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: Arial
+        }
+
+        button {
+            color: #fff;
+            background-color: #4CAF50;
+            display: inline-block;
+            margin: 10px;
+            padding: 8px 16px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        button:hover {
+            background-color: #fff;
+            color: #4CAF50;
+            border-color: #fff;
+            border: 1px solid #4CAF50;
+        }
+
     </style>
 </head>
 <body>
@@ -53,33 +133,24 @@
             <ul>
                 <li><a href="{{ url_for('index') }}">首頁</a></li>
                 <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
-                <li><a href="{{ url_for('publish') }}">免費刊登出售</a></li> 
-                <li><a href="{{ url_for('pendingOrders') }}">待處理商品</a></li>
-                <li><a href="{{ url_for('soldProduct') }}">出售紀錄</a></li>
                 <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
                 <li><a href="{{ url_for('logout') }}">登出</a></li>
             </ul>
         </div>
     </header>
-    <h1>免費刊登出售</h1>
-    <form method="POST">
-        <div>
+    <h2>免費刊登出售</h2>
+    <div class="container">
+        <form method="POST">
             <label for="product_id">產品編號</label>
             <input type="text" id="product_id" name="product_id" required>
-        </div>
-        <div>
             <label for="name">名稱</label>
             <input type="text" id="name" name="name" required>
-        </div>
-        <div>
             <label for="description">描述</label>
-            <textarea id="description" name="description" required></textarea>
-        </div>
-        <div>
+            <textarea type="text" id="description" name="description" required></textarea>
             <label for="price">價格</label>
-            <input type="number" id="price" name="price" step="0.01" required>
-        </div>
-        <button type="submit">發布</button>
-    </form>
+            <input type="number" id="price" name="price" step="1" required>
+            <button type="submit">發布</button>
+        </form>
+    </div>
 </body>
 </html>

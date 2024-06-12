@@ -4,14 +4,75 @@
 <head>
     <meta charset="UTF-8">
     <title>錯誤頁面</title>
+    <style>
+        /* Reset some default browser styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>發生錯誤</h1>
-    <p>很抱歉，伺服器發生了一些錯誤，無法完成您的請求。</p>
-    <p>請稍後再試或聯繫管理員。</p>
-    <p>{{error_message}}</p>
-    <a href="{{ url_for('index') }}">返回首頁</a>
+    <div class="container">
+        <h1>發生錯誤</h1>
+        <p>很抱歉，伺服器發生了一些錯誤，無法完成您的請求。</p>
+        <p>請稍後再試或聯繫管理員。</p>
+        <p class="error-message">{{ error_message }}</p>
+        <a href="{{ url_for('index') }}">返回首頁</a>
+    </div>
 </body>
 
 </html>

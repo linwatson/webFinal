@@ -1,69 +1,109 @@
 <!DOCTYPE html>
-<html lang="tw">
+<html lang="zh-Hant-TW">
+
 <head>
     <meta charset="UTF-8">
-    <title>index</title>
+    <title>首頁</title>
     <style>
-        .product-item {
-            border: 1px solid #ccc;
-            margin: 10px;
-            padding: 10px;
+        /* Reset some default browser styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .product-name {
-            font-size: 20px;
-            font-weight: bold;
-            display: inline; /* 确保块级元素 */
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
         }
-        .product-description {
-            margin-top: 10px;
-            display: inline; /* 确保块级元素 */
-        }
-        .product-price {
-            margin-top: 10px;
-            color: red;
-        }
+
+        /* Header styles */
         header {
             background-color: #bec92b;
             color: #fff;
             padding: 20px;
-            text-align: left;
         }
+
         .flex-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
+
         .flex-container ul {
             list-style-type: none;
+            display: flex;
             padding: 0;
             margin: 0;
-            display: flex;
-            align-items: center;
         }
+
         .flex-container li {
-            position: relative;
-            margin-top: -70px; /* 调整上边距 */
-        }
-        .flex-container li + li::before {
-            content: '|';
             margin: 0 10px;
-            color: #000;
         }
+
         .flex-container a {
             text-decoration: none;
-            color: #000;
+            color: #fff;
+            font-size: 16px;
+            transition: color 0.3s;
         }
+
         .flex-container a:hover {
-            text-decoration: underline;
+            color: #333;
         }
-        a {
-            text-decoration: none; /* 移除默认下划线 */
+
+        /* Page title */
+        h1, h2{
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
         }
-        a:hover {
-            text-decoration: underline; /* 悬停时显示下划线 */
+
+        /* Product list styles */
+        .product-list {
+            
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px;
+            gap: 20px;
+        }
+
+        .product-item {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #fff;
+            
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 16px;
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="flex-container">
@@ -78,18 +118,18 @@
             </ul>
         </div>
     </header>
-    <h1>首頁</h1>
+    <h2>首頁</h2>
     <div class="product-list">
         {% for product in products %}
         <div class="product-item" id="product-{{ product.id }}">
             <a href="{{ url_for('product', product_code=product.id) }}">
-                <span class="product-name">{{ product.name }}</span>
-                <span class="product-description">{{ product.description }}</span>
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-description">{{ product.description }}</div>
             </a>
             <div class="product-price">${{ product.price }}</div>
         </div>
         {% endfor %}
     </div>
 </body>
-</html>
 
+</html>

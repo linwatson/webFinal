@@ -4,6 +4,103 @@
 <head>
     <meta charset="UTF-8">
     <title>購買完成</title>
+    <style>
+        /* Reset some default browser styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header styles */
+        header {
+            background-color: #bec92b;
+            color: #fff;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .flex-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flex-container ul {
+            list-style-type: none;
+            display: flex;
+            padding: 0;
+            margin: 0;
+        }
+
+        .flex-container li {
+            margin: 0 10px;
+        }
+
+        .flex-container a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .flex-container a:hover {
+            color: #333;
+        }
+
+        .flex-container a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .container {
+            max-width: 330px;
+            margin: 100px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2{
+            color: #333;
+            margin: 20px 0;
+        }
+
+        button {
+            border: 1px solid #4CAF50;
+            padding: 5px 10px;
+        }
+        
+        .fix-link {
+            background-color: #4CAF50;
+            text-decoration: none;
+            color: #fff;
+            display: inline-block;
+            margin: 15px 0px 0px;
+
+            padding: 8px 16px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            
+        }
+
+        .fix-link:hover {
+            background-color: #45a049;
+            color: #fff;
+            border-color: #4CAF50;
+        }
+    </style>
 </head>
 
 <body>
@@ -20,8 +117,11 @@
             </ul>
         </div>
     </header>
-    <h1>購買完成</h1>
-    <a href="{{ url_for('index') }}">返回首頁</a>
+    <div class="container">
+        <h1>購買完成</h1>
+        <p>謝謝您的購買，您的訂單已成功處理。</p>
+        <a class = "fix-link" href="{{ url_for('index') }}">返回首頁</a>
+    </div>
 </body>
 
 </html>

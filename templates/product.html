@@ -5,18 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PChome商品資訊</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+/* Reset some default browser styles */
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f8f8f8;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header styles */
         header {
-            background-color: #333;
+            background-color: #bec92b;
             color: #fff;
             padding: 20px;
+            text-align: left;
+        }
+
+        .flex-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flex-container ul {
+            list-style-type: none;
+            display: flex;
+            padding: 0;
+            margin: 0;
+        }
+
+        .flex-container li {
+            margin: 0 10px;
+        }
+
+        .flex-container a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .flex-container a:hover {
+            color: #333;
+        }
+
+        /* Register page title */
+        h1, h2{
+            color: #333;
+            margin: 20px 0;
+        }
+
+        h1 {
             text-align: center;
         }
+
+        h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Register form styles */
         main {
             margin: 20px auto;
             width: 80%;
@@ -25,23 +80,17 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         section {
             margin-bottom: 20px;
+            
         }
-        h2 {
-            color: #333;
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+
+        button {
+            border: 1px solid #4CAF50;
+            padding: 5px 10px;
         }
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-        button{
-            border: 1px solid #4CAF50; /* 添加边框 */
-            padding: 5px 10px; /* 添加内边距 */
-        }
+
         .purchase {
             background-color: #4CAF50;
             color: white;
@@ -49,6 +98,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .cart {
             background-color: #ffffff;
             color: #4CAF50;
@@ -56,13 +106,16 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .purchase:hover {
             background-color: #45a049;
         }
+
         .cart:hover {
-            border: 1px solid #45a049; /* 添加边框 */
+            border: 1px solid #45a049;
             background-color: #eef3ef;
         }
+
         footer {
             background-color: #333;
             color: #fff;
@@ -102,17 +155,22 @@
         <!--以下部分要再修改 導向的部分-->
         <section>
             <h2>購買選項</h2>
-            <form method="post">
-                <input type="hidden" name="product_id" value="DSAA99-1900DVYGD">
+            <form id="buy-form" method="post" >
+                <input type="hidden" name="action" value="purchase">
+                <input type="hidden" name="product_id" value="{{ data['product_id'] }}">
+                <input type="hidden" name="qty" value="1">
+                <button class="purchase" type="submit">立即購買</button>
+            </form>
+            <form id="add-to-cart-form" method="post">
+                <input type="hidden" name="action" value="add_to_cart">
+                <input type="hidden" name="product_id" value="{{ data['product_id'] }}">
                 <input type="hidden" name="qty" value="1">
                 <button class="cart" type="submit">加入購物車</button>
-                <button class="purchase"type="submit">立即購買</button>
-
             </form>
         </section>
     </main>
     <footer>
-        <p>版權所有 &copy; 2024 PChome</p>
+        <p>&copy; MYshop</p>
     </footer>
 </body>
 </html>
