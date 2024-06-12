@@ -350,14 +350,22 @@ def product(product_code):
             save_user_session(account, session_data)
 
         prod_id_list = session_data['customer']['cart']
-
-        # 根據商品ID清單提取商品詳細信息
-        products = get_products(prod_id_list)
-        # 計算總價
-        total_price = calculate_total_price(products)
+        action = request.form.get('action')
+        if action == 'purchase':
+            # 立即購買
+            # 根據商品ID清單提取商品詳細信息
+            products = get_products(prod_id_list)
+            # 計算總價
+            total_price = calculate_total_price(products)
+            return render_template('cart.html', products=products, total_price=total_price)
+        
+        elif action == 'add_to_cart':
+            # 加入購物車
+            return redirect(url_for('index'))
+        
         
         # 將購物車商品和總價傳遞給模板
-        return render_template('cart.html', products=products, total_price=total_price)
+        #return render_template('cart.html', products=products, total_price=total_price)
 
     try:
         conn = get_db_connection()
