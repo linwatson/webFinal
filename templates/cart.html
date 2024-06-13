@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>購物車</title>
     <style>
-        /* Reset some default browser styles */
         * {
             margin: 0;
             padding: 0;
@@ -18,7 +17,6 @@
             padding: 0;
         }
 
-        /* Header styles */
         header {
             background-color: #bec92b;
             color: #fff;
@@ -53,14 +51,12 @@
             color: #333;
         }
 
-        /* Page title */
-        h1 {
+        h1, h2 {
             text-align: center;
             color: #333;
             margin: 20px 0;
         }
 
-        /* Product list styles */
         .product-list {
             display: flex;
             flex-wrap: wrap;
@@ -159,7 +155,7 @@
             </ul>
         </div>
     </header>
-    <h1>購物車</h1>
+    <h2>購物車</h2>
     <form id="cart-form" method="POST" action="{{ url_for('purchaseComplete') }}">
         <div class="product-list">
             {% for product in products %}

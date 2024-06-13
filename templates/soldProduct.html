@@ -4,9 +4,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>待處理商品</title>
+    <title>出售紀錄</title>
     <style>
-        /* Reset some default browser styles */
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +19,6 @@
             padding: 0;
         }
 
-        /* Header styles */
         header {
             background-color: #bec92b;
             color: #fff;
@@ -55,14 +53,12 @@
             color: #333;
         }
 
-        /* Page title */
         h1, h2{
             text-align: center;
             color: #333;
             margin: 20px 0;
         }
 
-        /* Product list styles */
         .product-list {
             
             flex-wrap: wrap;
@@ -120,8 +116,7 @@
             </ul>
         </div>
     </header>
-    <h1>已完成商品</h1>
-    <!--這邊要多加一個可以下架的選項 要從資料庫 商品狀態中改變(不一定要做)-->
+    <h2>出售紀錄</h2>
     <div class="product-list">
         {% for product in products %}
         <div class="product-item" id="product-{{ product.id }}">

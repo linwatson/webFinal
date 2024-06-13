@@ -2,9 +2,8 @@
 <html lang="tw">
 <head>
     <meta charset="UTF-8">
-    <title>pendingOrders</title>
+    <title>待處理商品</title>
     <style>
-        /* Reset some default browser styles */
         * {
             margin: 0;
             padding: 0;
@@ -18,7 +17,6 @@
             padding: 0;
         }
 
-        /* Header styles */
         header {
             background-color: #bec92b;
             color: #fff;
@@ -53,14 +51,12 @@
             color: #333;
         }
 
-        /* Page title */
         h1, h2{
             text-align: center;
             color: #333;
             margin: 20px 0;
         }
 
-        /* Product list styles */
         .product-list {
             
             flex-wrap: wrap;
@@ -135,7 +131,7 @@
             </ul>
         </div>
     </header>
-    <h1>待處理商品</h1>
+    <h2>待處理商品</h2>
     <form id="cart-form" method="POST">
         <div class="product-list">
             {% for index in range(products | length) %}

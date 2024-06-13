@@ -221,7 +221,6 @@ def editProfile():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Enable foreign key support
         cursor.execute("PRAGMA foreign_keys = ON;")
 
         if request.method == 'POST':
@@ -233,13 +232,11 @@ def editProfile():
             member_email = request.form.get('member_email')
             member_phone = request.form.get('member_phone')
             
-            # Ensure account uniqueness (excluding current user)
             cursor.execute("SELECT * FROM users WHERE account = ? AND account != ?", (account, old_account))
             existing_user = cursor.fetchone()
             if existing_user:
                 raise Exception(f"Account '{account}' already exists.")
             
-            # Start transaction
             conn.execute('BEGIN')
 
             try:
@@ -251,24 +248,14 @@ def editProfile():
                     """, 
                     (password, member_name, member_address, member_email, member_phone, old_account)
                 )
-                # 如果需要更新 account，需要确保在其他表中同步更新
-                # 假设原 account 为 old_account，新的 account 为 new_account
-                #account = request.form.get('account')
 
                 if old_account != account:
-                    #print('Updating account...')
             
-                    # 更新引用表（sessions 和 products）
-                    
-                    
-                    # 最后更新主表（users）
                     cursor.execute(
                         "UPDATE users SET account = ? WHERE account = ?",
                         (account, old_account)
                     )
-                    #print('Users table updated successfully')
 
-                # Commit transaction
                 conn.commit()
 
             except sqlite3.IntegrityError as e:
@@ -281,7 +268,6 @@ def editProfile():
                 conn.rollback()
                 return render_template('error.html', error_message=str(e)), 500
 
-            # Update session data
             session_data = get_user_session(account)
             if session_data:
                 session_data['memberInfo'].update({
@@ -320,8 +306,6 @@ def index():
         return redirect(url_for('login'))
     
     account = session['account']
-    session_data = get_user_session(account)
-    print('in index session_data:',session_data)
     conn = None
     try:
         conn = get_db_connection()
@@ -372,10 +356,6 @@ def product(product_code):
         elif action == 'add_to_cart':
             # 加入購物車
             return redirect(url_for('index'))
-        
-        
-        # 將購物車商品和總價傳遞給模板
-        #return render_template('cart.html', products=products, total_price=total_price)
 
     try:
         conn = get_db_connection()
@@ -433,12 +413,10 @@ def purchaseComplete():
                 'customer': account
             })
         save_user_session(seller, seller_session)
-        #print('in purchase complete seller_session: ',seller_session)    
-
+    
     # 更新買家購物車
     session_data['customer']['cart'] = [product_id for product_id in session_data['customer']['cart'] if str(product_id) not in selected_products]
     save_user_session(account, session_data)
-    #print('in purchase complete buyer_session: ',get_user_session(account)) 
     return render_template('purchaseComplete.html')
 
 
@@ -446,11 +424,8 @@ def purchaseComplete():
 def orderHistory():
     account = session['account']
     session_data = get_user_session(account)
-    #print('session_data: ',session_data)
     orders = session_data['customer'].get('order_history', [])
-    #print('orders: ',orders)
     products = get_products([order['product_id'] for order in orders])
-    #print('products: ', products)
     return render_template('orderHistory.html', products=products)
 
 
@@ -502,6 +477,7 @@ def publish():
     
     return render_template('publish.html')
 
+
 @app.route('/sold_product')
 def soldProduct():
     account = session['account']
@@ -518,7 +494,6 @@ def pendingOrders():
         account = session['account']
         session_data = get_user_session(account)
         pending_orders = session_data['seller']['Pending_orders']
-        #print('pending_orders: ',pending_orders)# 先看有啥訂單
         selected_products = request.form.getlist('selected_products')
         selected_customers = request.form.getlist('selected_customers')
 
@@ -529,18 +504,17 @@ def pendingOrders():
                 for order in pending_orders:
                     if order['product_id'] == product_id and order['customer'] == customer:
                         completed_orders.append(order)
-        # 更新卖家的待处理订单和订单记录
+        # 更新賣家的待處理訂單和訂單紀錄
         session_data['seller']['Pending_orders'] = [order for order in pending_orders if order not in completed_orders]
         session_data['seller']['order_history'] += completed_orders
         save_user_session(account, session_data)
 
-        # 更新买家的订单记录
+        # 更新買家的訂單紀錄
         for order in completed_orders:
             customer_account = order['customer']
             customer_session = get_user_session(customer_account)
             customer_session['customer']['order_history'].append({'product_id': order['product_id'], 'seller': session['account']})
             save_user_session(customer_account, customer_session)
-            print('customer_session: ',customer_session)
         
         pending_orders = session_data['seller'].get('Pending_orders', [])
         products = get_products([order['product_id'] for order in pending_orders])
@@ -551,15 +525,9 @@ def pendingOrders():
 
     account = session['account']
     session_data = get_user_session(account)
-    #print('seller_session_data: ', session_data)
     pending_orders = session_data['seller'].get('Pending_orders', [])
 
     products = get_products([order['product_id'] for order in pending_orders])
     pending_customers = [order['customer'] for order in pending_orders]
     
     return render_template('pendingOrders.html', products=products, customers=pending_customers)
-
-
-@app.route('/test')
-def test():
-    return render_template('test.html')
