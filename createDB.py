@@ -1,10 +1,8 @@
 import sqlite3
 
-# 连接到数据库，如果不存在则会创建一个名为 data.db 的数据库文件
 conn = sqlite3.connect('data.db')
 cursor = conn.cursor()
 
-# 创建 users 表
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,7 +15,6 @@ CREATE TABLE IF NOT EXISTS users (
 )
 ''')
 
-# 创建 sessions 表
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS sessions (
     session_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +24,6 @@ CREATE TABLE IF NOT EXISTS sessions (
 )
 ''')
 
-# 创建 products 表
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS products (
     product_id TEXT PRIMARY KEY,
@@ -39,8 +35,7 @@ CREATE TABLE IF NOT EXISTS products (
 )
 ''')
 
-# 提交事务并关闭连接
 conn.commit()
 conn.close()
 
-print("数据库和表已成功创建")
+print("數據庫與資料表已成功創建")
