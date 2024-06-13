@@ -1,8 +1,10 @@
+<!--這裡要顯示已完成商品-->
 <!DOCTYPE html>
-<html lang="tw">
+<html lang="zh-Hant-TW">
+
 <head>
     <meta charset="UTF-8">
-    <title>orderHistory</title>
+    <title>待處理商品</title>
     <style>
         .product-item {
             border: 1px solid #ccc;
@@ -64,6 +66,7 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="flex-container">
@@ -79,6 +82,7 @@
         </div>
     </header>
     <h1>訂單紀錄</h1>
+    <!--這邊要多加一個可以下架的選項 要從資料庫 商品狀態中改變(不一定要做)-->
     <div class="product-list">
         {% for product in products %}
         <div class="product-item" id="product-{{ product.id }}">
@@ -91,4 +95,5 @@
         {% endfor %}
     </div>
 </body>
+
 </html>

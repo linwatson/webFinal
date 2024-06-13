@@ -59,7 +59,7 @@ def get_products(prod_id_list):
     '''
     if not prod_id_list:
         return []
-    
+
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -69,23 +69,33 @@ def get_products(prod_id_list):
         cursor.execute(query, prod_id_list)
         rows = cursor.fetchall()
 
-        products = [
-            {
+        # 使用字典來處理重複的product_id
+        product_dict = {}
+        for row in rows:
+            product = {
                 'id': row['product_id'],
                 'name': row['name'],
                 'description': row['description'],
                 'price': row['price'],
                 'seller': row['seller']
             }
-            for row in rows
-        ]
+            if row['product_id'] in product_dict:
+                product_dict[row['product_id']].append(product)
+            else:
+                product_dict[row['product_id']] = [product]
+
+        # 生成產品列表，保持輸入ID列表的順序和重複項
+        products = [product for prod_id in prod_id_list for product in product_dict.get(prod_id, [])]
 
         return products
     except Exception as e:
         log_error(e)
         return []
     finally:
-        conn and conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 
 def calculate_total_price(products):
@@ -311,7 +321,7 @@ def index():
     
     account = session['account']
     session_data = get_user_session(account)
-    #print('in index session_data:',session_data)
+    print('in index session_data:',session_data)
     conn = None
     try:
         conn = get_db_connection()
@@ -434,10 +444,13 @@ def purchaseComplete():
 
 @app.route('/orderHistory')
 def orderHistory():
-    account = session.get('account')
+    account = session['account']
     session_data = get_user_session(account)
-    
-    products = get_products(session_data['customer']['order_history'])
+    #print('session_data: ',session_data)
+    orders = session_data['customer'].get('order_history', [])
+    #print('orders: ',orders)
+    products = get_products([order['product_id'] for order in orders])
+    #print('products: ', products)
     return render_template('orderHistory.html', products=products)
 
 
@@ -493,8 +506,8 @@ def publish():
 def soldProduct():
     account = session['account']
     session_data = get_user_session(account)
-    
-    products = get_products(session_data['seller']['order_history'])
+    orders = session_data['seller'].get('order_history', [])
+    products = get_products([order['product_id'] for order in orders])
     return render_template('soldProduct.html', products=products)
 
 
@@ -516,7 +529,6 @@ def pendingOrders():
                 for order in pending_orders:
                     if order['product_id'] == product_id and order['customer'] == customer:
                         completed_orders.append(order)
-        
         # 更新卖家的待处理订单和订单记录
         session_data['seller']['Pending_orders'] = [order for order in pending_orders if order not in completed_orders]
         session_data['seller']['order_history'] += completed_orders
