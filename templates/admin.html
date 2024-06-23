@@ -120,16 +120,15 @@
         <div class="flex-container">
             <h1>MYshop</h1>
             <ul>
-                <li><a href="{{ url_for('admin') }}">管理員登入</a></li>
+                <li><a href="{{ url_for('login') }}">會員登入</a></li>
             </ul>
         </div>
     </header>
-    <h2>登入頁</h2>
+    <h2>管理員登入</h2>
     <form method="POST">
         <p>帳號: <input type="text" name="account" value="admin"></p>
         <p>密碼: <input type="password" name="password" value="admin"></p>
         <p><input type="submit" value="登入"></p>
-        <a href="{{ url_for('register') }}">還沒有註冊? 免費註冊</a>
     </form>
     {% if error %}
     <p class="error-message">{{ error }}</p>

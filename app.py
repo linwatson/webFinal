@@ -145,11 +145,6 @@ def register():
                 'customer': {
                     'cart': [], # 購物車
                     'order_history': [] # 已完成訂單
-                },
-                'seller': {
-                    'Listings': [], # 上架商品
-                    'Pending_orders': [], # 待處理訂單
-                    'order_history': [] # 完成訂單
                 }
             }
             
@@ -531,3 +526,28 @@ def pendingOrders():
     pending_customers = [order['customer'] for order in pending_orders]
     
     return render_template('pendingOrders.html', products=products, customers=pending_customers)
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method == 'POST':
+        account = request.form.get('account')
+        password = request.form.get('password')
+        conn = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM users WHERE account = ? AND password = ?", (account, password))
+            results = cursor.fetchone()
+            if results:
+                session['account'] = results['account']
+                return redirect(url_for('seller'))
+            else:
+                error = '請輸入正確的帳號密碼'
+                return render_template('admin.html', error=error)
+        except Exception as e:
+            log_error(e)
+            return render_template('error.html'), 500
+        finally:
+            conn and conn.close()
+    return render_template('admin.html')
+

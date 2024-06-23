@@ -122,6 +122,10 @@
             margin: 20px;
         }
 
+        .total-price.hidden {
+            display: none;
+        }
+
         .purchase {
             display: block;
             width: 200px;
@@ -150,7 +154,6 @@
                 <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
                 <li><a href="{{ url_for('cart') }}">購物車</a></li>
                 <li><a href="{{ url_for('orderHistory') }}">購買紀錄</a></li>
-                <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
                 <li><a href="{{ url_for('logout') }}">登出</a></li>
             </ul>
         </div>
@@ -184,7 +187,7 @@
             </div>
             {% endfor %}
         </div>
-        <div class="total-price">總價：$<span id="total-price">{{ total_price }}</span></div>
+        <div class="total-price hidden">總價：$<span id="total-price">{{ total_price }}</span></div>
         <button type="submit" class="purchase">立即購買</button>
     </form>
     
@@ -194,17 +197,28 @@
             const purchaseButton = form.querySelector('.purchase');
             const productCheckboxes = form.querySelectorAll('.product-checkbox');
             const totalPriceDisplay = document.getElementById('total-price');
+            const totalPriceContainer = document.querySelector('.total-price');
 
             function calculateTotalPrice() {
                 let totalPrice = 0;
+                let hasChecked = false;
+
                 productCheckboxes.forEach(function(checkbox) {
                     if (checkbox.checked) {
+                        hasChecked = true;
                         const price = parseFloat(checkbox.dataset.price);
                         const quantity = parseInt(document.querySelector(`select[name="quantity_${checkbox.value}"]`).value);
                         totalPrice += price * quantity;
                     }
                 });
+
                 totalPriceDisplay.textContent = totalPrice.toFixed(2);
+
+                if (hasChecked) {
+                    totalPriceContainer.classList.remove('hidden');
+                } else {
+                    totalPriceContainer.classList.add('hidden');
+                }
             }
 
             function handleCheckboxChange() {
