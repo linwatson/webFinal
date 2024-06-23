@@ -550,4 +550,3 @@ def admin():
         finally:
             conn and conn.close()
     return render_template('admin.html')
-
