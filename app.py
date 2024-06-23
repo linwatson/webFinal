@@ -540,7 +540,7 @@ def admin():
             results = cursor.fetchone()
             if results:
                 session['account'] = results['account']
-                return redirect(url_for('seller'))
+                return redirect(url_for('admin'))
             else:
                 error = '請輸入正確的帳號密碼'
                 return render_template('admin.html', error=error)
