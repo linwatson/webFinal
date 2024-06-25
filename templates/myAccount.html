@@ -109,13 +109,17 @@
         <div class="flex-container">
             <h1>MYshop</h1>
             <ul>
-                <li><a href="{{ url_for('index') }}">首頁</a></li>
+                {% if rec['user_type'] == '會員' %}
+                    <li><a href="{{ url_for('index') }}">首頁</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
+                {% endif %}
                 <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
                 <li><a href="{{ url_for('logout') }}">登出</a></li>
             </ul>
         </div>
     </header>
-    <h2>會員資料檢視</h2>
+    <h2>{{rec['user_type']}}資料檢視</h2>
     <table>
         <tr>
             <th>帳號</th>
@@ -143,7 +147,7 @@
         </tr>
     </table>
     <div class="button-container">
-        <a class = "fix-link" href="{{ url_for('editProfile') }}">修改個人資訊</a>
+        <a class = "fix-link" href="{{ url_for('editProfile') }}">修改{{rec['user_type']}}資訊</a>
         <a class = "fix-link" href="{{ url_for('logout') }}">登出</a>
     </div>
 </body>

@@ -59,7 +59,6 @@
         }
 
         .product-list {
-            
             flex-wrap: wrap;
             justify-content: center;
             margin: 20px;
@@ -71,7 +70,6 @@
             border-radius: 10px;
             padding: 15px;
             background-color: #fff;
-            
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
@@ -97,6 +95,85 @@
             font-weight: bold;
             margin-top: 10px;
         }
+
+        .product-quantity {
+            font-size: 16px;
+            color: #000000;
+            margin-left: auto;
+        }
+
+        .change-stock-button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #bec92b;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            align-self: flex-end;
+        }
+
+        .change-stock-button:hover {
+            background-color: #a1b221;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+
+        .modal button {
+            background-color: #bec92b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .modal button:hover {
+            background-color: #a1b221;
+        }
     </style>
 </head>
 
@@ -107,7 +184,7 @@
             <ul>
                 <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
                 <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
-                <li><a href="{{ url_for('publish') }}">免費刊登出售</a></li> 
+                <li><a href="{{ url_for('publish') }}">免費刊登出售</a></li>
                 <li><a href="{{ url_for('pendingOrders') }}">待處理商品</a></li>
                 <li><a href="{{ url_for('soldProduct') }}">出售紀錄</a></li>
                 <li><a href="{{ url_for('logout') }}">登出</a></li>
@@ -119,13 +196,79 @@
     <div class="product-list">
         {% for product in products %}
         <div class="product-item" id="product-{{ product.id }}">
-            
             <span class="product-name">{{ product.name }}</span>
             <span class="product-description">{{ product.description }}</span>
             <div class="product-price">${{ product.price }}</div>
+            <div class="product-quantity">庫存: {{product.quantity}}</div>
+            <button class="change-stock-button" data-product-id="{{ product.product_id }}" data-product-name="{{ product.name }}">修改庫存</button>
         </div>
         {% endfor %}
     </div>
+
+    <!-- The Modal -->
+    <div id="stockModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>修改庫存</h2>
+            <input type="number" id="newStockQuantity" placeholder="輸入新的庫存數量">
+            <button id="saveStockButton">保存</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById("stockModal");
+            const closeModal = document.getElementsByClassName("close")[0];
+            const saveButton = document.getElementById("saveStockButton");
+            let currentProductId;
+            
+            document.querySelectorAll('.change-stock-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    currentProductId = this.getAttribute('data-product-id');
+                    modal.style.display = "block";
+                });
+            });
+        
+            closeModal.onclick = function() {
+                modal.style.display = "none";
+            }
+        
+            saveButton.addEventListener('click', function() {
+                const newStockQuantity = document.getElementById('newStockQuantity').value;
+                modal.style.display = "none";
+                if (newStockQuantity) {
+                    console.log(`保存庫存: ${newStockQuantity} 產品ID: ${currentProductId}`);
+                    
+                    fetch('/seller', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            productId: currentProductId,
+                            newStockQuantity: newStockQuantity
+                        })
+                        
+                    })
+                    .then(() => {
+                        location.reload();
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+
+                } else {
+                    alert("請輸入庫存數量");
+                }
+            });
+        
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

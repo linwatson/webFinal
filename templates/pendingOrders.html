@@ -121,12 +121,11 @@
         <div class="flex-container">
             <h1>MYshop</h1>
             <ul>
-                <li><a href="{{ url_for('index') }}">首頁</a></li>
+                <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
                 <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
                 <li><a href="{{ url_for('publish') }}">免費刊登出售</a></li> 
                 <li><a href="{{ url_for('pendingOrders') }}">待處理商品</a></li>
                 <li><a href="{{ url_for('soldProduct') }}">出售紀錄</a></li>
-                <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
                 <li><a href="{{ url_for('logout') }}">登出</a></li>
             </ul>
         </div>
@@ -140,7 +139,8 @@
                     <a>
                         <span class="product-name">{{ products[index].name }}</span>
                         <span class="product-description">{{ products[index].description }}</span>
-                        <span class="product-customer">買家: {{ customers[index] }}</span>
+                        <div class="product-customer">買家: {{ customers[index] }}</div>
+                        <div>數量: {{quantitys[index]}}</div>
                     </a>
                     <div class="product-price">${{ products[index].price }}</div>
                 </div>

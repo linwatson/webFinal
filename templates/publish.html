@@ -129,9 +129,11 @@
         <div class="flex-container">
             <h1>MYshop</h1>
             <ul>
-                <li><a href="{{ url_for('index') }}">首頁</a></li>
-                <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
                 <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
+                <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
+                <li><a href="{{ url_for('publish') }}">免費刊登出售</a></li> 
+                <li><a href="{{ url_for('pendingOrders') }}">待處理商品</a></li>
+                <li><a href="{{ url_for('soldProduct') }}">出售紀錄</a></li>
                 <li><a href="{{ url_for('logout') }}">登出</a></li>
             </ul>
         </div>
@@ -146,7 +148,9 @@
             <label for="description">描述</label>
             <textarea type="text" id="description" name="description" required></textarea>
             <label for="price">價格</label>
-            <input type="number" id="price" name="price" step="1" required>
+            <input type="text" id="price" name="price" required>
+            <label for="price">庫存</label>
+            <input type="number" id="quantity" name="quantity" step="1" required>
             <button type="submit">發布</button>
         </form>
     </div>

@@ -77,6 +77,7 @@ def get_products(prod_id_list):
                 'name': row['name'],
                 'description': row['description'],
                 'price': row['price'],
+                'quantity': row['quantity'],
                 'seller': row['seller']
             }
             if row['product_id'] in product_dict:
@@ -97,11 +98,6 @@ def get_products(prod_id_list):
         if conn:
             conn.close()
 
-
-def calculate_total_price(products):
-    return sum(product['price'] for product in products)
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     '''註冊會員 註冊完成導向login'''
@@ -119,45 +115,54 @@ def register():
             member_address = request.form.get('member_address')
             member_email = request.form.get('member_email')
             member_phone = request.form.get('member_phone')
+            user_type = '會員'
 
             assert password == AGpassword, '密碼與確認密碼不相符!'
             assert re.match(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+', member_email), '請輸入正確的Email!'
             assert re.match(r'^09\d{8}$', member_phone), '請輸入有效的手機號碼'
             
-            # 將 member 資料寫入 member 資料表
-            cursor.execute(
-                "INSERT INTO users (account, password, member_name, member_address, member_email, member_phone) VALUES (?,?,?,?,?,?);",
-                (account, password, member_name, member_address, member_email, member_phone)
-            )
-            conn.commit()
+            cursor.execute("SELECT * FROM users WHERE account = ?", (account,))
+            existing_user = cursor.fetchone()
+            if existing_user:
+                raise AssertionError (f"Account '{account}' already exists.")
+                
+            else:
+                # 將 member 資料寫入 member 資料表
+                cursor.execute(
+                    "INSERT INTO users (account, password, member_name, member_address, member_email, member_phone, user_type) VALUES (?,?,?,?,?,?,?);",
+                    (account, password, member_name, member_address, member_email, member_phone, user_type)
+                )
+                conn.commit()
 
-
-            # 初始化用戶 session
-            session_data = {
-                'memberInfo': {
-                    'account': account,
-                    'password': password,
-                    'member_name': member_name,
-                    'member_address': member_address,
-                    'member_email': member_email,
-                    'member_phone': member_phone
-                },
-                'customer': {
-                    'cart': [], # 購物車
-                    'order_history': [] # 已完成訂單
+                # 初始化用戶 session
+                session_data = {
+                    'memberInfo': {
+                        'account': account,
+                        'password': password,
+                        'member_name': member_name,
+                        'member_address': member_address,
+                        'member_email': member_email,
+                        'member_phone': member_phone,
+                        'user_type': user_type
+                    },
+                    'customer': {
+                        'cart': [], # 購物車
+                        'order_history': [] # 已完成訂單
+                    }
                 }
-            }
-            
-            save_user_session(account, session_data)
-            session['account'] = account
-            return redirect(url_for('login'))
+                
+                save_user_session(account, session_data)
+                session['account'] = account
+                session['user_type'] = user_type
+                return redirect(url_for('login'))
             
         except AssertionError as e:
             log_error(e)
             return render_template('register.html', error=str(e))
+        
         except Exception as e:
             log_error(e)
-            return render_template('error.html'), 500
+            return render_template('error.html', user_type=session['user_type']), 500
         finally:
             conn and conn.close()
 
@@ -173,15 +178,16 @@ def login():
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM users WHERE account = ? AND password = ?", (account, password))
             results = cursor.fetchone()
-            if results:
+            if results and results['user_type'] == '會員':
                 session['account'] = results['account']
+                session['user_type'] = results['user_type']
                 return redirect(url_for('index'))
             else:
-                error = '請輸入正確的帳號密碼'
+                error = '請輸入正確的會員帳號密碼'
                 return render_template('login.html', error=error)
         except Exception as e:
             log_error(e)
-            return render_template('error.html'), 500
+            return render_template('error.html', user_type=session['user_type']), 500
         finally:
             conn and conn.close()
     return render_template('login.html')
@@ -201,7 +207,7 @@ def myAccount():
         return render_template('myAccount.html', rec=results)
     except Exception as e:
         log_error(e)
-        return render_template('error.html'), 500
+        return render_template('error.html', user_type=session['user_type']), 500
     finally:
         conn and conn.close()
 
@@ -217,7 +223,7 @@ def editProfile():
         cursor = conn.cursor()
 
         cursor.execute("PRAGMA foreign_keys = ON;")
-
+        enter = dict()
         if request.method == 'POST':
             old_account = session['account']
             account = request.form.get('account')
@@ -226,57 +232,69 @@ def editProfile():
             member_address = request.form.get('member_address')
             member_email = request.form.get('member_email')
             member_phone = request.form.get('member_phone')
+
+
+            enter = {
+                'account': '',
+                'password': password,
+                'member_name': member_name,
+                'member_address': member_address,
+                'member_email': member_email,
+                'member_phone': member_phone,
+            }
+            
+            assert re.match(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+', member_email), '請輸入正確的Email!'
+            assert re.match(r'^09\d{8}$', member_phone), '請輸入有效的手機號碼'
             
             cursor.execute("SELECT * FROM users WHERE account = ? AND account != ?", (account, old_account))
             existing_user = cursor.fetchone()
             if existing_user:
-                raise Exception(f"Account '{account}' already exists.")
+                raise AssertionError (f"Account '{account}' already exists.")
             
-            conn.execute('BEGIN')
-
-            try:
-                cursor.execute(
-                    """
-                    UPDATE users
-                    SET password = ?, member_name = ?, member_address = ?, member_email = ?, member_phone = ?
-                    WHERE account = ?
-                    """, 
-                    (password, member_name, member_address, member_email, member_phone, old_account)
-                )
-
-                if old_account != account:
-            
+            else:
+                try:
+                    conn.execute('BEGIN')
                     cursor.execute(
-                        "UPDATE users SET account = ? WHERE account = ?",
-                        (account, old_account)
+                        """
+                        UPDATE users
+                        SET password = ?, member_name = ?, member_address = ?, member_email = ?, member_phone = ?
+                        WHERE account = ?
+                        """, 
+                        (password, member_name, member_address, member_email, member_phone, old_account)
                     )
 
-                conn.commit()
+                    if old_account != account:
+                        cursor.execute(
+                            "UPDATE users SET account = ? WHERE account = ?",
+                            (account, old_account)
+                        )
 
-            except sqlite3.IntegrityError as e:
-                log_error(e)
-                conn.rollback()
-                return render_template('error.html', error_message="A database integrity error occurred. Please try again."), 500
-            
-            except Exception as e:
-                log_error(e)
-                conn.rollback()
-                return render_template('error.html', error_message=str(e)), 500
+                    conn.commit()
 
-            session_data = get_user_session(account)
-            if session_data:
-                session_data['memberInfo'].update({
-                    'account': account,
-                    'password': password,
-                    'member_name': member_name,
-                    'member_address': member_address,
-                    'member_email': member_email,
-                    'member_phone': member_phone
-                })
-                save_user_session(account, session_data)
-                session.pop('account')
-                session['account'] = account
-                return redirect(url_for('myAccount'))
+                except sqlite3.IntegrityError as e:
+                    log_error(e)
+                    conn.rollback()
+                    return render_template('error.html', user_type=session['user_type'], error_message="A database integrity error occurred. Please try again."), 500
+
+                except Exception as e:
+                    log_error(e)
+                    conn.rollback()
+                    return render_template('error.html', user_type=session['user_type'], error_message=str(e)), 500
+
+                session_data = get_user_session(account)
+                if session_data:
+                    session_data['memberInfo'].update({
+                        'account': account,
+                        'password': password,
+                        'member_name': member_name,
+                        'member_address': member_address,
+                        'member_email': member_email,
+                        'member_phone': member_phone
+                    })
+                    save_user_session(account, session_data)
+                    session.pop('account')
+                    session['account'] = account
+                    return redirect(url_for('myAccount'))
 
         cursor.execute("SELECT * FROM users WHERE account = ?", (session['account'],))
         results = cursor.fetchone()
@@ -284,11 +302,15 @@ def editProfile():
     
     except sqlite3.IntegrityError as e:
         log_error(e)
-        return render_template('error.html', error_message="A database integrity error occurred. Please try again."), 500
+        return render_template('error.html', user_type=session['user_type'], error_message="A database integrity error occurred. Please try again."), 500
+    
+    except AssertionError as e:
+        log_error(e)
+        return render_template('editProfile.html', error=str(e),rec=enter)
     
     except Exception as e:
         log_error(e)
-        return render_template('error.html', error_message=str(e)), 500
+        return render_template('error.html', user_type=session['user_type'], error_message=str(e)), 500
     
     finally:
         if conn:
@@ -299,8 +321,6 @@ def editProfile():
 def index():
     if 'account' not in session:
         return redirect(url_for('login'))
-    
-    account = session['account']
     conn = None
     try:
         conn = get_db_connection()
@@ -313,6 +333,7 @@ def index():
                 'name': row['name'],
                 'description': row['description'],
                 'price': row['price'],
+                'quantity': row['quantity'],
                 'seller': row['seller']
             }
             for row in rows
@@ -320,10 +341,9 @@ def index():
         return render_template('index.html', products=products)
     except Exception as e:
         log_error(e)
-        return render_template('error.html'), 500
+        return render_template('error.html', user_type=session['user_type']), 500
     finally:
         conn and conn.close()
-
 
 @app.route('/prod/<product_code>', methods=['GET', 'POST'])
 def product(product_code):
@@ -345,8 +365,7 @@ def product(product_code):
             # 根據商品ID清單提取商品詳細信息
             products = get_products(prod_id_list)
             # 計算總價
-            total_price = calculate_total_price(products)
-            return render_template('cart.html', products=products, total_price=total_price)
+            return redirect(url_for('cart'))
         
         elif action == 'add_to_cart':
             # 加入購物車
@@ -360,18 +379,40 @@ def product(product_code):
         return render_template('product.html', data=datas)
     except Exception as e:
         log_error(e)
-        return render_template('error.html'), 500
+        return render_template('error.html', user_type=session['user_type']), 500
     finally:
         conn and conn.close()
 
+def calculate_total_price(products):
+    return sum(product['price'] for product in products)
 
-@app.route('/cart')
+@app.route('/cart', methods=['GET','POST'])
 def cart():
     if 'account' not in session:
         return redirect(url_for('login'))
     
     account = session['account']
     session_data = get_user_session(account)
+    print('cart: ', session_data['customer']['cart'])
+    if request.method == 'POST':
+        # 获取发送过来的产品 ID
+        product_id = request.form.get('remove_product_id')
+        
+        session_data['customer']['cart'].remove(product_id)
+        save_user_session(account, session_data)
+        
+
+        print("要移除的产品 ID:", product_id)
+        print('cart: ', session_data['customer']['cart'])
+
+        prod_id_list = session_data['customer']['cart']
+
+        # 根據商品ID清單提取商品詳細信息
+        products = get_products(prod_id_list)
+        print(products)
+        print('xd')
+        return render_template('cart.html', products=products)
+
 
     # 提取購物車中所有商品的ID清單
     prod_id_list = session_data['customer']['cart']
@@ -379,10 +420,12 @@ def cart():
     # 根據商品ID清單提取商品詳細信息
     products = get_products(prod_id_list)
     # 計算總價
-    total_price = calculate_total_price(products)
+    msg = request.args.get('msg')
     
-    # 將購物車商品和總價傳遞給模板
-    return render_template('cart.html', products=products, total_price=total_price)
+    if msg is not None:
+        return render_template('cart.html', products=products, msg=msg)
+    else:
+        return render_template('cart.html', products=products)
 
 
 @app.route('/logout')
@@ -399,20 +442,49 @@ def purchaseComplete():
     selected_products = request.form.getlist('selected_products')
     selected_sellers = request.form.getlist('selected_sellers')
 
-    # 下單之後跑到賣家的待處理清單
-    for product_id, seller in zip(selected_products, selected_sellers):
-        seller_session = get_user_session(seller)
-        if seller_session:
-            seller_session['seller']['Pending_orders'].append({
-                'product_id': product_id,
-                'customer': account
-            })
-        save_user_session(seller, seller_session)
+    selected_quantities = []
+
+    for product_id in selected_products:
+        quantity = request.form.get(f'quantity_{product_id}')
+        selected_quantities.append(quantity)
     
-    # 更新買家購物車
-    session_data['customer']['cart'] = [product_id for product_id in session_data['customer']['cart'] if str(product_id) not in selected_products]
-    save_user_session(account, session_data)
-    return render_template('purchaseComplete.html')
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # 下單之後跑到賣家的待處理清單
+        for product_id, seller , quantity in zip(selected_products, selected_sellers, selected_quantities):
+            
+            #更新資料庫中的商品數量
+            cursor.execute("SELECT * FROM products WHERE product_id = ?", (product_id,))
+            product = cursor.fetchone()
+            if product:
+                new_quantity = product['quantity'] - int(quantity)
+                if new_quantity < 0:
+                    return redirect(url_for('cart', msg='庫存不足，請重新選擇數量'))
+                else:
+                    cursor.execute("UPDATE products SET quantity = ? WHERE product_id = ?", (new_quantity, product_id))
+                    conn.commit()
+            
+            seller_session = get_user_session(seller)
+            if seller_session:
+                seller_session['seller']['Pending_orders'].append({
+                    'product_id': product_id,
+                    'customer': account,
+                    'quantity': quantity
+                })
+            save_user_session(seller, seller_session)
+            
+        # 更新買家購物車
+        session_data['customer']['cart'] = [product_id for product_id in session_data['customer']['cart'] if str(product_id) not in selected_products]
+        save_user_session(account, session_data)
+
+        return render_template('purchaseComplete.html')
+
+    except Exception as e:
+        log_error(e)
+        return render_template('error.html', user_type=session['user_type']), 500
+    finally:
+        conn and conn.close()
 
 
 @app.route('/orderHistory')
@@ -421,15 +493,41 @@ def orderHistory():
     session_data = get_user_session(account)
     orders = session_data['customer'].get('order_history', [])
     products = get_products([order['product_id'] for order in orders])
+
+    for idx, order in enumerate(orders):
+        product = products[idx].copy()
+        product['quantity'] = int(order['quantity'])
+        products[idx] = product
+    
     return render_template('orderHistory.html', products=products)
 
 
-@app.route('/seller')
+@app.route('/seller', methods=['GET', 'POST'])
 def seller():
     if 'account' not in session:
         return redirect(url_for('login'))
-
+    
     conn = None
+    if request.method == 'POST':
+        try:
+            seller = session['account']
+            data = request.get_json()
+            product_id = data['productId']
+            new_quantity = data['newStockQuantity']
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE products SET quantity = ? WHERE product_id = ?",(new_quantity, product_id,))
+            conn.commit()
+            print('xdd')
+            
+            return redirect(url_for('seller'))
+        except Exception as e:
+            log_error(e)
+            return render_template('error.html', user_type=session['user_type']), 500
+        finally:
+            conn and conn.close()
+
+    
     try:
         seller = session['account']
         conn = get_db_connection()
@@ -439,7 +537,7 @@ def seller():
         return render_template('seller.html', products=products)
     except Exception as e:
         log_error(e)
-        return render_template('error.html'), 500
+        return render_template('error.html', user_type=session['user_type']), 500
     finally:
         conn and conn.close()
 
@@ -453,20 +551,21 @@ def publish():
             name = request.form.get('name')
             description = request.form.get('description')
             price = request.form.get('price')
+            quantity = request.form.get('quantity')
             seller = session['account']
             
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO products (product_id, name, description, price, seller) VALUES (?, ?, ?, ?, ?);",
-                (product_id, name, description, price, seller)
+                "INSERT INTO products (product_id, name, description, price, quantity, seller) VALUES (?, ?, ?, ?, ?, ?);",
+                (product_id, name, description, price, quantity, seller)
             )
             conn.commit()
 
             return redirect(url_for('seller'))
         except Exception as e:
             log_error(e)
-            return render_template('error.html'), 500
+            return render_template('error.html', user_type=session['user_type']), 500
         finally:
             conn and conn.close()
     
@@ -479,6 +578,12 @@ def soldProduct():
     session_data = get_user_session(account)
     orders = session_data['seller'].get('order_history', [])
     products = get_products([order['product_id'] for order in orders])
+
+    for idx, order in enumerate(orders):
+        product = products[idx].copy()  
+        product['quantity'] = int(order['quantity'])
+        products[idx] = product 
+        products[idx]['customer'] = order['customer']
     return render_template('soldProduct.html', products=products)
 
 
@@ -491,24 +596,38 @@ def pendingOrders():
         pending_orders = session_data['seller']['Pending_orders']
         selected_products = request.form.getlist('selected_products')
         selected_customers = request.form.getlist('selected_customers')
+        selected_quantities = []
+    
 
+        for product_id in selected_products:
+            quantity = request.form.get(f'quantity_{product_id}')
+            selected_quantities.append(quantity)
+        
         # 更新賣家待處理清單和訂單紀錄
         completed_orders = []
+        added_orders = set()  # 用集合来跟踪已添加的订单
+
         for product_id in selected_products:
             for customer in selected_customers:
                 for order in pending_orders:
-                    if order['product_id'] == product_id and order['customer'] == customer:
+                    order_tuple = (order['product_id'], order['customer'], order['quantity'])
+                    if order_tuple not in added_orders and order['product_id'] == product_id and order['customer'] == customer:
                         completed_orders.append(order)
-        # 更新賣家的待處理訂單和訂單紀錄
-        session_data['seller']['Pending_orders'] = [order for order in pending_orders if order not in completed_orders]
-        session_data['seller']['order_history'] += completed_orders
-        save_user_session(account, session_data)
+                        added_orders.add(order_tuple)
 
+        # 更新賣家的待處理訂單
+        session_data['seller']['Pending_orders'] = [order for order in pending_orders if order not in completed_orders]
+
+        # 更新賣家的訂單紀錄
+        for order in completed_orders:
+            session_data['seller']['order_history'].append({'product_id': order['product_id'], 'customer': order['customer'], 'quantity': order['quantity']})
+            save_user_session(account, session_data)
+        
         # 更新買家的訂單紀錄
         for order in completed_orders:
             customer_account = order['customer']
             customer_session = get_user_session(customer_account)
-            customer_session['customer']['order_history'].append({'product_id': order['product_id'], 'seller': session['account']})
+            customer_session['customer']['order_history'].append({'product_id': order['product_id'], 'seller': session['account'], 'quantity': order['quantity']})
             save_user_session(customer_account, customer_session)
         
         pending_orders = session_data['seller'].get('Pending_orders', [])
@@ -524,8 +643,8 @@ def pendingOrders():
 
     products = get_products([order['product_id'] for order in pending_orders])
     pending_customers = [order['customer'] for order in pending_orders]
-    
-    return render_template('pendingOrders.html', products=products, customers=pending_customers)
+    quantitys = [order['quantity'] for order in pending_orders]
+    return render_template('pendingOrders.html', products=products, customers=pending_customers, quantitys=quantitys)
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -538,15 +657,16 @@ def admin():
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM users WHERE account = ? AND password = ?", (account, password))
             results = cursor.fetchone()
-            if results:
+            if results and results['user_type'] == '管理員':
                 session['account'] = results['account']
-                return redirect(url_for('admin'))
+                session['user_type'] = results['user_type']
+                return redirect(url_for('seller'))
             else:
-                error = '請輸入正確的帳號密碼'
+                error = '請輸入正確的管理員帳號密碼'
                 return render_template('admin.html', error=error)
         except Exception as e:
             log_error(e)
-            return render_template('error.html'), 500
+            return render_template('error.html', user_type=session['user_type']), 500
         finally:
             conn and conn.close()
     return render_template('admin.html')

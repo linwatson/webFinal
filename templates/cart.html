@@ -99,6 +99,10 @@
             color: #555;
         }
 
+        .product-quantity {
+            font-size: 14px;
+            color: #555;
+        }
         .product-price {
             font-size: 16px;
             color: red;
@@ -143,6 +147,26 @@
         .purchase:hover {
             background-color: #45a049;
         }
+        .msg {
+            color: red;
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px;
+        }
+        .remove-button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .remove-button:hover {
+            background-color: #d32f2f;
+        }
     </style>
 </head>
 <body>
@@ -167,7 +191,8 @@
                     <a>
                         <span class="product-name">{{ product.name }}</span>
                         <span class="product-description">{{ product.description }}</span>
-                        <span class="product-seller">賣家: {{ product.seller }}</span>
+                        <div class="product-quantity">剩餘庫存: {{ product.quantity }}</div>
+                        <div class="product-seller">賣家: {{ product.seller }}</div>
                     </a>
                     <div class="product-price">${{ product.price }}</div>
                     <label>
@@ -184,10 +209,15 @@
                 <label>
                     <input type="checkbox" name="selected_products" class="product-checkbox" value="{{ product.id }}" data-price="{{ product.price }}" data-seller="{{ product.seller }}">
                 </label>
+                <!-- 新增移除按鈕 -->
+                <button type="button" class="remove-button" data-product-id="{{ product.id }}">移除</button>
+                <input type="hidden" name="removed_products" class="removed-products" value="">
+        
             </div>
             {% endfor %}
         </div>
         <div class="total-price hidden">總價：$<span id="total-price">{{ total_price }}</span></div>
+        <div class="msg">{{msg}}</div>
         <button type="submit" class="purchase">立即購買</button>
     </form>
     
@@ -198,6 +228,35 @@
             const productCheckboxes = form.querySelectorAll('.product-checkbox');
             const totalPriceDisplay = document.getElementById('total-price');
             const totalPriceContainer = document.querySelector('.total-price');
+            const msgContainer = document.querySelector('.msg');
+
+
+            const removeButtons = document.querySelectorAll('.remove-button');
+
+            removeButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const productId = button.dataset.productId;
+                    handleRemoveProduct(productId);
+                });
+            });
+
+            function handleRemoveProduct(productId) {
+                const xhr = new XMLHttpRequest();
+                const url = '/cart';
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            window.location.reload();
+                        } else {
+                            console.error('Error:', xhr.status);
+                        }
+                    }
+                };
+                xhr.send('remove_product_id=' + encodeURIComponent(productId));
+            }
+
 
             function calculateTotalPrice() {
                 let totalPrice = 0;
@@ -222,11 +281,31 @@
             }
 
             function handleCheckboxChange() {
+                checkIfAnyChecked();
                 calculateTotalPrice();
             }
 
             function handleQuantityChange() {
                 calculateTotalPrice();
+            }
+
+            function checkIfAnyChecked() {
+                let isChecked = false;
+                productCheckboxes.forEach(function(checkbox) {
+                    if (checkbox.checked) {
+                        isChecked = true;
+                    }
+                });
+
+                if (!isChecked) {
+                    msgContainer.textContent = '請至少選擇一個項目';
+                    purchaseButton.disabled = true; // 禁用按钮
+                    return false; // 沒有選中任何商品，返回 false
+                } else {
+                    msgContainer.textContent = ''; // 清空提示消息
+                    purchaseButton.disabled = false; // 启用按钮
+                    return true; // 選中了商品，返回 true
+                }
             }
 
             productCheckboxes.forEach(function(checkbox) {
@@ -244,6 +323,9 @@
             });
 
             function handlePurchase() {
+                if (!checkIfAnyChecked()) {
+                    return;
+                }
                 // 清除之前的隱藏輸入框
                 document.querySelectorAll('input[name="selected_sellers"]').forEach(function(input) {
                     input.remove();

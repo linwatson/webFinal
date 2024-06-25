@@ -1,1 +1,1 @@
-deactivate
+env\Scripts\deactivate.bat

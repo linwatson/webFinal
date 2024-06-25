@@ -116,6 +116,12 @@
         .logout-link:hover {
             color: #333;
         }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 15px;
+        }
     </style>
 </head>
 
@@ -124,13 +130,18 @@
         <div class="flex-container">
             <h1>MYshop</h1>
             <ul>
-                <li><a href="{{ url_for('index') }}">首頁</a></li>
+                {% if rec['user_type'] == '會員' %}
+                    <li><a href="{{ url_for('index') }}">首頁</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('seller') }}">賣家中心</a></li>
+                {% endif %}
                 <li><a href="{{ url_for('myAccount') }}">我的帳戶</a></li>
                 <li><a href="{{ url_for('logout') }}">登出</a></li>
             </ul>
         </div>
     </header>
-    <h2>修改個人資訊</h2>
+    <h2>修改{{ rec['user_type'] }}資訊</h2>
+
     <div class="container">
         <form method="post">
             <label for="account">帳號:</label>
@@ -155,6 +166,9 @@
             <a class="logout-link" href="{{ url_for('logout') }}">登出</a>
         </form>
     </div>
+    {% if error %}
+    <p class="error-message">{{ error }}</p>
+    {% endif %}
 </body>
 
 </html>

@@ -97,6 +97,11 @@
             font-weight: bold;
             margin-top: 10px;
         }
+        .product-quantity {
+            font-size: 16px;
+            color: #000000;
+            margin-left: auto;
+        }
     </style>
 </head>
 
@@ -122,6 +127,7 @@
                 <div class="product-description">{{ product.description }}</div>
             </a>
             <div class="product-price">${{ product.price }}</div>
+            <div class="product-quantity">庫存: {{product.quantity}}</div>
         </div>
         {% endfor %}
     </div>
