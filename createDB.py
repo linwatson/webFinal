@@ -53,10 +53,10 @@ cursor.execute(
 """,(account, password, member_name, member_address, member_email, member_phone, user_type))
 
 products = {
-    ("DHABG5-A900GIOA", "ACER Aspire 3 A315-35-P4CG 銀", "(N6000/8GB/512GB SSD/Win11/15.6吋) 效能筆電", 12900, 100, "admin"),
-    ("DHAFOD-1900HHONC", "ASUS 15.6吋效能筆電-午夜藍", "(i7-12700H/16G/512G/W11/FHD/15.6)", 22999, 30, "admin"),
-    ("DHABC1-A900GLD2T", "MSI微星 Bravo 15 C7VFK-200TW-SP1 黑", "(R5-7535HS/8G+8G/512G SSD/RTX4060 8G/W11/15.6)特仕筆電", 29900, 80, "admin"),
-    ("DHABC2-A900GJCY7", "MSI微星 Modern 15 H B13M-002TW-SP4 黑", "(i7-13700H/32G/1TB SSD/W11P/15.6)特仕筆電", 29500, 100, "admin"),
+    ("DHABG5-A900GIOA", "ACER Aspire 3 A315-35-P4CG 銀", "(N6000/8GB/512GB SSD/Win11/15.6吋) 效能筆電", 12900, 10, "admin"),
+    ("DHAFOD-1900HHONC", "ASUS 15.6吋效能筆電-午夜藍", "(i7-12700H/16G/512G/W11/FHD/15.6)", 22999, 5, "admin"),
+    ("DHABC1-A900GLD2T", "MSI微星 Bravo 15 C7VFK-200TW-SP1 黑", "(R5-7535HS/8G+8G/512G SSD/RTX4060 8G/W11/15.6)特仕筆電", 29900, 15, "admin"),
+    ("DHABC2-A900GJCY7", "MSI微星 Modern 15 H B13M-002TW-SP4 黑", "(i7-13700H/32G/1TB SSD/W11P/15.6)特仕筆電", 29500, 1, "admin"),
 }
 
 cursor.executemany(
